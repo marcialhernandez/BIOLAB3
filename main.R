@@ -1,0 +1,8 @@
+install.packages("ggplot2")
+install.packages("psych")
+#library (psych)
+source ("http://www.bioconductor.org/biocLite.R")
+biocLite()
+biocLite(Biostrings)
+biocLite("multtest")
+#library(multtest)
