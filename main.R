@@ -7,7 +7,6 @@
 library (psych)
 library(multtest)
 
-
 inicializaMatriz<-function(largo,ancho){
   return (matrix(0, nrow = largo, ncol = ancho))
 }
@@ -51,10 +50,20 @@ validaStrings<-function(salidaDeReubicaStrings){
   }
 }
 
+#Parametros de entrada
 #Se asigna string entrada 1
 stringEntrada1<-"ATTAAG"
 #Se asigna string entrada 2
 stringEntrada2<-"GATTACAAG"
+#Bonos y Penalizaciones
+penalizacionIzquierda<-1
+penalizacionArriba<-1
+penalizacionCruzada<-1
+penalizacionMissMatch<-1
+bonoMatch<-1
+
+#----------------------
+
 entrada<-reubicaStrings(stringEntrada1,stringEntrada2);
 if (validaStrings(entrada)==TRUE){
   #Genero matriz
@@ -68,14 +77,88 @@ if (validaStrings(entrada)==TRUE){
     ejeY<-0
     for (posLetra1 in 1:entrada$parametro1$largo){
       ejeY<-ejeY+1
-
       #Valida correcto cruce de informacion para la comparacion
       #print (paste("Pos (",toString(ejeX),",",toString(ejeY),")",": Cruce ->",entrada$parametro1$valor[posLetra1],"-",entrada$parametro2$valor[posLetra2]))
+    
+    #-Formacion Matriz----------------------------------------------------------------# 
+      if (ejeX==1){ 
+        
+        if (ejeY==1){ #ejeX==1 && ejeY==1
+          
+          if(entrada$parametro1$valor[posLetra1]==entrada$parametro2$valor[posLetra2]){ #casoMatch
+            matriz[ejeX,ejeY]<-matriz[ejeX,ejeY]+bonoMatch
+          }
+          
+          else{# casoMissMatch
+            matriz[ejeX,ejeY]<-0
+          }
+          
+        }#Fin caso #ejeX==1 && ejeY==1
+        
+        else{ #ejeX==1 && ejeY!=1
 
-    }
-  }
+          if(entrada$parametro1$valor[posLetra1]==entrada$parametro2$valor[posLetra2]){ #casoMatch
+            matriz[ejeX,ejeY]<-matriz[ejeX,ejeY-1]+bonoMatch
+          }
+          
+          else{# casoMissMatch
+            if (matriz[ejeX,ejeY-1]-penalizacionMissMatch>0){
+              matriz[ejeX,ejeY]<-matriz[ejeX,ejeY-1]-penalizacionMissMatch
+            }
+            else{
+              matriz[ejeX,ejeY]<-0
+            }
+          }
+          
+        }# Fin caso #ejeX==1 && ejeY!=1
+        
+      }
+      
+      else if(ejeY==1){ #ejeX!=1 && ejeY==1
+        
+        if(entrada$parametro1$valor[posLetra1]==entrada$parametro2$valor[posLetra2]){ #casoMatch
+          matriz[ejeX,ejeY]<-matriz[ejeX-1,ejeY]+bonoMatch
+        }
+        
+        else{# casoMissMatch
+          if (matriz[ejeX-1,ejeY]-penalizacionMissMatch>0){
+            matriz[ejeX,ejeY]<-matriz[ejeX-1,ejeY]-penalizacionMissMatch
+          }
+          else{
+            matriz[ejeX,ejeY]<-0
+          }
+        }
+        
+      }#Fin #ejeX!=1 && ejeY==1
+      
+      else{ #ejeX!=1 && ejeY!=1
+        
+        mejorValorVecinos=max(matriz[ejeX,ejeY],matriz[ejeX-1,ejeY],matriz[ejeX,ejeY-1])
+        
+        if(entrada$parametro1$valor[posLetra1]==entrada$parametro2$valor[posLetra2]){ #casoMatch
+          matriz[ejeX,ejeY]<-mejorValorVecinos+bonoMatch
+        }
+        
+        else{# casoMissMatch
+          if (mejorValorVecinos>penalizacionMissMatch){
+            matriz[ejeX,ejeY]<-mejorValorVecinos-penalizacionMissMatch
+          }
+          else{
+            matriz[ejeX,ejeY]<-0
+          }
+        }
+        
+      }#Fin ejeX!=1 && ejeY!=1
+    
+    #---------------------------------------------------------------------------------#
+      
+    } #Fin for (posLetra1 in 1:entrada$parametro1$largo)
+  }#Fin for (posLetra2 in 1:entrada$parametro2$largo)
+  
+  print (matriz)
 } else{
   print ("Uno de los parametros no es de tipo String y no se puede ejecutar")
 }
 
 warnings()
+options(error=recover)
