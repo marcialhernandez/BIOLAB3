@@ -8,6 +8,10 @@ library (psych)
 library(multtest)
 
 
+inicializaMatriz<-function(largo,ancho){
+  return (matrix(0, nrow = largo, ncol = ancho))
+}
+
 #Funcion que tiene como entrada 2 parametros de tipo string 
 #Y retorna una lista con los valores 'parametro1' y 'parametro2'
 #Donde siempre el 'parametro1' tendra largo mayor que 'parametro2'
@@ -29,20 +33,17 @@ reubicaStrings<-function(string1,string2){
     } #fin if (string1.largo>string2.largo)
     
     else{
-      #salida.string1=string2
-      #salida.string2=string1
       return (list(parametro1=list(valor=unlist(strsplit(string2,"")),largo=string2.largo),parametro2=list(valor=unlist(strsplit(string1,"")),largo=string1.largo)))
-      #return (c(string2,string1))
     } #fin else
     
   } #fin if (typeof(string1)=="character" & typeof(string2)=="character") 
   else{
-    return (list(parametro1=list(valor=FALSE),parametro2=list(valor=FALSE)))
+    return(FALSE)
   }
 }
 
 validaStrings<-function(salidaDeReubicaStrings){
-  if (salidaDeReubicaStrings$parametro1$valor==FALSE){
+  if (typeof(salidaDeReubicaStrings)=="logical"){
     return (FALSE)
   }
   else{
@@ -57,13 +58,20 @@ stringEntrada2<-"GATTACAAG"
 entrada<-reubicaStrings(stringEntrada1,stringEntrada2);
 if (validaStrings(entrada)==TRUE){
   #Genero matriz
-  #print (entrada$parametro1$valor[3])
-  for (posLetra1 in 1:entrada$parametro1$largo){
-    
-    for (posLetra2 in 1:entrada$parametro2$largo){
-      
-      print (paste("letra1: ",entrada$parametro1$valor[posLetra1]," con letra2: ",entrada$parametro2$valor[posLetra2]))
-      
+  matriz=inicializaMatriz(entrada$parametro2$largo,entrada$parametro1$largo)
+  #print (matriz)
+  ejeX<-0
+  ejeY<-0
+  
+  for (posLetra2 in 1:entrada$parametro2$largo){
+    ejeX<-ejeX+1
+    ejeY<-0
+    for (posLetra1 in 1:entrada$parametro1$largo){
+      ejeY<-ejeY+1
+
+      #Valida correcto cruce de informacion para la comparacion
+      #print (paste("Pos (",toString(ejeX),",",toString(ejeY),")",": Cruce ->",entrada$parametro1$valor[posLetra1],"-",entrada$parametro2$valor[posLetra2]))
+
     }
   }
 } else{
