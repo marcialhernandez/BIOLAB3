@@ -12,6 +12,36 @@ inicializaMatriz<-function(largo,ancho){
   return (matrix(0, nrow = largo, ncol = ancho))
 }
 
+#Funcion que tiene como entrada 2 parametros de tipo string 
+#Y retorna una lista con los valores 'parametro1' y 'parametro2'
+#Donde siempre el 'parametro1' tendra largo mayor que 'parametro2'
+#tanto parametro1 como parametro2 tienen los atributos 'valor' y 'largo'
+#En caso que una entrada no sea String, entonces retorna el bool FALSE
+reubicaStrings<-function(string1,string2){
+  #Validacion de tipo
+  #En caso que si sea
+  if (typeof(string1)=="character" & typeof(string2)=="character"){
+    
+    #Se asocia su largo como atributo
+    string1.largo=nchar(string1)
+    string2.largo=nchar(string2)
+    
+    if (string1.largo>=string2.largo){
+      #salida.string1=string1
+      #salida.string2=string2
+      return (list(parametro1=list(valor=unlist(strsplit(string1,"")),largo=string1.largo),parametro2=list(valor=unlist(strsplit(string2,"")),largo=string2.largo)))
+    } #fin if (string1.largo>string2.largo)
+    
+    else{
+      return (list(parametro1=list(valor=unlist(strsplit(string2,"")),largo=string2.largo),parametro2=list(valor=unlist(strsplit(string1,"")),largo=string1.largo)))
+    } #fin else
+    
+  } #fin if (typeof(string1)=="character" & typeof(string2)=="character") 
+  else{
+    return(FALSE)
+  }
+}
+
 generaMatrizMatch<-function(salidaDeReubicaStrings,bonoMatch,penalizacionMiss,penalizacionGap){
   #Genero matriz
   matriz=inicializaMatriz(salidaDeReubicaStrings$parametro2$largo+1,salidaDeReubicaStrings$parametro1$largo+1)
@@ -26,7 +56,9 @@ generaMatrizMatch<-function(salidaDeReubicaStrings,bonoMatch,penalizacionMiss,pe
       #print (paste("Pos (",toString(ejeX),",",toString(ejeY),")",": Cruce ->",salidaDeReubicaStrings$parametro1$valor[ejeX-1],"-",salidaDeReubicaStrings$parametro2$valor[ejeY-1]))
       
       #CASO MATCH
-      if(salidaDeReubicaStrings$parametro1$valor[ejeX-1]==salidaDeReubicaStrings$parametro2$valor[ejeY-1]){ #casoMatch
+      if(salidaDeReubicaStrings$parametro1$valor[ejeY-1]==salidaDeReubicaStrings$parametro2$valor[ejeX-1]){ #casoMatch
+        #print (paste("Pos (",toString(ejeX),",",toString(ejeY),")",": Cruce ->",salidaDeReubicaStrings$parametro1$valor[ejeY-1],"-",salidaDeReubicaStrings$parametro2$valor[ejeX-1]))
+        
         
 #         # IZQ MAYOR
 #         if (matriz[ejeX-1,ejeY]>matriz[ejeX-1,ejeY-1]&matriz[ejeX-1,ejeY]>matriz[ejeX,ejeY-1]){
@@ -35,7 +67,8 @@ generaMatrizMatch<-function(salidaDeReubicaStrings,bonoMatch,penalizacionMiss,pe
         
         # CRUZADO MAYOR
 #         if (matriz[ejeX-1,ejeY-1]>matriz[ejeX-1,ejeY]&matriz[ejeX-1,ejeY-1]>matriz[ejeX,ejeY-1]){
-          matriz[ejeX,ejeY]<-matriz[ejeX-1,ejeY-1]+bonoMatch
+          #matriz[ejeX,ejeY]<-matriz[ejeX-1,ejeY-1]+bonoMatch
+        matriz[ejeX,ejeY]<-max(matriz[ejeX-1,ejeY-1],matriz[ejeX-1,ejeY],matriz[ejeX,ejeY-1])+bonoMatch
         # }
         
 #         # ARRIBA MAYOR
@@ -47,9 +80,9 @@ generaMatrizMatch<-function(salidaDeReubicaStrings,bonoMatch,penalizacionMiss,pe
       
       else{# casoMissMatch
         
-        mayorVecino=max(matriz[ejeX,ejeY-1],matriz[ejeX-1,ejeY-1],matriz[ejeX-1,ejeY])
+        mayorVecino=max(matriz[ejeX,ejeY-1]-penalizacionGap,matriz[ejeX-1,ejeY-1],matriz[ejeX-1,ejeY]-penalizacionGap)
         if (mayorVecino>penalizacionMiss){
-          matriz[ejeX,ejeY]<-mayorVecino-penalizacionGap
+          matriz[ejeX,ejeY]<-mayorVecino-penalizacionMiss
         }
         
         else{
@@ -90,59 +123,32 @@ preprocesoPorLaDerecha<-function(stringEntrada,largo,posXActual){
   }
 }
 
-preprocesoPorLaIzquierda<-function(salidaObtieneSimilitud){
-  stringSalida<-list(stringSalida=salidaObtieneSimilitud$stringSalida,puntaje=salidaObtieneSimilitud$puntaje)
-  if (salidaObtieneSimilitud$posX==0){
-    return (stringSalida)
+preprocesoPorLaIzquierda<-function(stringEntrada,posXActual){
+  if (posXActual==1){
+    return (stringEntrada)
   }
   else{
-    for (posLetra in salidaObtieneSimilitud$posX:0){
-      stringSalida[posLetra]<-"_"
-    }
-    return (stringSalida)
+    stringEntrada[posXActual]<-"_"
+    return (preprocesoPorLaIzquierda(stringEntrada,posXActual-1))
   }
 }
 
-obtieneSimilitud<-function(stringPreprocesadoPorLaDerecha,puntaje,posX,posY,matrizMatches){
-  puntaje=matrizMatches[posY,posX]
-  while(posY>1&posX>1){
-    if (matrizMatches[posY,posX]==0){
-      return (list(stringSalida=stringPreprocesadoPorLaDerecha,puntaje=puntaje, posX=posX,posY=posY))
-    }
-    else{
-      if (matrizMatches[posX-1,posY]>matrizMatches[posX-1,posY-1]){ #Corresponde a Gap
-          stringPreprocesadoPorLaDerecha[posX]<-"_"
-          posX<-posX-1
-          }
-      else{
-        posX<-posX-1
-        posY<-posY-1
-        puntaje=matrizMatches[posY,posX]
-      }
-      
+obtieneSimilitud<-function(stringPreprocesadoPorLaDerecha,posX,posY,matrizMatches){
+  if (matrizMatches[posX,posY]==0){
+    return (list(stringSalida=stringPreprocesadoPorLaDerecha, posX=posX))
+  }
+  else{
+    #CasoMatch
+    if (matrizMatches[posX-1,posY-1]>=matrizMatches[posX-1,posY]){
+      return (obtieneSimilitud(stringPreprocesadoPorLaDerecha,posX-1,posY-1,matrizMatches))
     }
     
-  }#fin while (posY>1&posX>1)
-  
-  return (list(stringSalida=stringPreprocesadoPorLaDerecha,puntaje=puntaje, posX=posX,posY=posY))
-#   if (posX==1| posY==1){
-#     return (list(stringSalida=stringPreprocesadoPorLaDerecha,puntaje=puntaje, posX=posX,posY=posY))
-#   }
-#   
-#   else if (matrizMatches[posY-1,posX-1]==0 & matrizMatches[posX-1,posY-1]==0){
-#     return (list(stringSalida=stringPreprocesadoPorLaDerecha,puntaje=puntaje, posX=posX,posY=posY))
-#   }
-#   
-#   else{ #posX!=1 && posY!=1
-#       if (matrizMatches[posX-1,posY]>matrizMatches[posX-1,posY-1]){ #Corresponde a Gap
-#         stringPreprocesadoPorLaDerecha[posY]<-"_"
-#         return (obtieneSimilitud(stringPreprocesadoPorLaDerecha,puntaje,posX-1,posY,matrizMatches))
-#       }
-#     else{
-#       return (obtieneSimilitud(stringPreprocesadoPorLaDerecha,puntaje+1,posX-1,posY-1,matrizMatches))
-#       
-#     }
-#  }
+    #Caso Gap
+    else{
+      stringPreprocesadoPorLaDerecha[posX]<-"_"
+      return (obtieneSimilitud(stringPreprocesadoPorLaDerecha,posX-1,posY,matrizMatches))
+    }
+  }
 }
 
 #Parametros de entrada
@@ -174,13 +180,14 @@ if (validaStrings(entrada)==TRUE){
     stringPreprocesado=preprocesoPorLaDerecha(entrada$parametro1$valor,entrada$parametro1$largo,maxPosMatriz[cantidadMax,][2])
     
     #Termina el proceso y se imprime
+    print("--------------------------------------------------------------------------------------")
+    print(entrada$parametro1$valor)
+    print(entrada$parametro2$valor)
+    stringPreprocesado<-obtieneSimilitud(stringPreprocesado,maxPosMatriz[cantidadMax,][1],maxPosMatriz[cantidadMax,][2],matrizM)
+    stringPreprocesado<-preprocesoPorLaIzquierda(stringPreprocesado$stringSalida,stringPreprocesado$posX)
     print(stringPreprocesado)
     cantidadMax<-cantidadMax-1
   }
-  #stringPreprocesado=preprocesoPorLaDerecha(entrada$parametro1$valor,entrada$parametro1$largo,maxPosMatriz[2])
-  #stringPreprocesado=obtieneSimilitud(stringPreprocesado,0,5,8,matrizM)
-  #stringPreprocesado=preprocesoPorLaIzquierda(obtieneSimilitud(stringPreprocesado,0,9,6,bonoHorizontal,bonoCruzado))
-  #print(stringPreprocesado)
   
 } else{
   print ("Uno de los parametros no es de tipo String y no se puede ejecutar")
