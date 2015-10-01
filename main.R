@@ -1,3 +1,16 @@
+# Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
+# Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. 
+# NonCommercial — You may not use the material for commercial purposes.
+# NoDerivatives — If you remix, transform, or build upon the material, you may not distribute the modified material. 
+# No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits. 
+# https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode#languages
+# Copyright (C)
+# author: Marcial Hernandez Sanchez
+# date: 30/9/2015
+# University of Santiago, Chile (Usach)
+
+#Historial de cambios: https://github.com/marcialhernandez/BIOLAB3/commits/master
+
 #install.packages("ggplot2")
 #install.packages("psych")
 #source ("http://www.bioconductor.org/biocLite.R")
@@ -6,6 +19,8 @@
 #biocLite("multtest")
 library (psych)
 library(multtest)
+
+#Funciones###################################################################
 
 inicializaMatriz<-function(largo,ancho){
   return (matrix(0, nrow = largo, ncol = ancho))
