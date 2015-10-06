@@ -136,6 +136,7 @@ smithWaterman<-function(string1,string2, pMiss,pMatch){
     print("--------------------------------------------------------------------------------------")
     print(matrizM)
     print("--------------------------------------------------------------------------------------")
+    print("Algorithm from Marcial Hernandez")
     print(paste("Puntaje Max:",matrizM[maxPosMatriz][1]))
     #Para cada valor Maximo encontrado
     while(cantidadMax>0){
@@ -157,6 +158,5 @@ smithWaterman<-function(string1,string2, pMiss,pMatch){
 ##################################################
 #MAIN()
 #string1,string2,puntajeMiss,puntajeMatch
-smithWaterman("AGCACACA","ACACACTA",1,2)
-
+smithWaterman("GAATTCCTACTACGGAATTCCCCTCCCATAATTCCTACTACGA","GAATTCCTACTACGAAGAATTCCTACTACGAAACTACGAAAATTCCTACTACGA",1,1)
 ##################################################
